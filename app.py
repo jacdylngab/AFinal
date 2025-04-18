@@ -20,7 +20,7 @@ with app.app_context():
 def main():
     return render_template('main.html')
 
-@app.route('/new', methods=['GET'])
+@app.route('/new/', methods=['GET'])
 def new_option():
     pass
 
