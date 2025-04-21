@@ -38,13 +38,3 @@ class Score(db.Model):
 
     def __repr__(self):
         return f'<Score {self.value} for User {self.user_id} in Game {self.game_id}>'
-
-class Questions(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    questions = db.Column(db.String(1000), unique=False, nullable=False)
-    answer = db.Column(db.String(1000), unique=False, nullable=False)
-
-class GameQuestion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)

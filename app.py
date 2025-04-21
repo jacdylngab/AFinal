@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = sqlite_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-from models import User, Game, Score, Questions, GameQuestion
+from models import User, Game, Score
 
 with app.app_context():
     db.create_all()
