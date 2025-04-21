@@ -13,7 +13,7 @@
     <h1 class="text-center mb-4">Game Lobby</h1>
 
     <div class="card shadow p-4">
-      <h4 class="mb-3">Game ID: {{ game_id }}<span id="game-id">LOADING...</span></h4>
+      <h4 class="mb-3">Game ID: {{ game_id }}</h4>
 
       <form id="name-form" class="mb-3">
         <div class="form-group mb-2">
@@ -31,13 +31,12 @@
     </div>
   </div>
 
-  <script src="/static/js/lobby.js"></script>
   <script>
-    // Show game ID from URL
-    const gameId = window.location.pathname.split("/").pop();
-    document.getElementById("game-id").innerText = gameId;
+    // Pass the Flask variable into JS
+    const gameId = "{{ game_id }}";
   </script>
 
+  <script src="/static/js/lobby.js"></script>
 </body>
 
 </html>
