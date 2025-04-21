@@ -7,19 +7,33 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 
-<body>
-    {% if message %}
-      <p style="color: red">{{ message }}</p>
-    {% endif %}
-    <a href="/new/">
-    <button class="btn btn-primary">New</button>
-    </a>
-    <form action="{{ url_for('join_option') }}" method="GET">
-      <input type="text" name="game_id" placeholder="Enter your game id here">
-      <input type = "submit" class="btn btn-secondary" value="Join">
-    </form>
+<body class="bg-light">
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow p-5" style="width: 100%; max-width: 550px;">
+      <div class="card-body text-center">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+        <h2 class="card-title mb-4">Welcome to the Game!</h2>
+        {% if message %}
+          <div class="alert alert-danger" role="alert">
+            {{ message }}
+          </div>
+        {% endif %}
+
+        <a href="/new/" class="btn btn-primary w-100 mb-3">Create New Game</a>
+        <!--<button class="btn btn-primary">New</button>
+        </a>-->
+        <form action="{{ url_for('join_option') }}" method="GET">
+          <div class="mb-3">
+            <input type="text" name="game_id" class="form-control" placeholder="Enter game ID">
+          </div>
+          <input type="submit" class="btn btn-secondary w-100" value="Join Game">
+          </form>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
 </body>
 

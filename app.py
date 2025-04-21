@@ -46,6 +46,9 @@ def join_option():
     game_id = request.args.get('game_id')
     existing_game_id = Game.query.filter_by(game_id=game_id).first()
 
+    all_games = Game.query.all()
+    print(f'All_games: {all_games}')
+
     if existing_game_id:
         return redirect(url_for('join_game_lobby', game_id=game_id))
     else:
