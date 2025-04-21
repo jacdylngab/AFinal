@@ -24,6 +24,11 @@ def generate_game_id(length):
 
 @app.route('/')
 def main():
+    # This is to know which Game ID
+    # Remove me in the future
+    all_games = Game.query.all()
+    print(f'All_games: {all_games}')
+
     return render_template('main.html')
 
 @app.route('/new/', methods=['GET'])
@@ -46,9 +51,6 @@ def join_option():
     game_id = request.args.get('game_id')
     existing_game_id = Game.query.filter_by(game_id=game_id).first()
 
-    all_games = Game.query.all()
-    print(f'All_games: {all_games}')
-
     if existing_game_id:
         return redirect(url_for('join_game_lobby', game_id=game_id))
     else:
@@ -56,4 +58,4 @@ def join_option():
 
 @app.route('/join/<game_id>/', methods=['GET'])
 def join_game_lobby(game_id):
-    return f"Joined game {game_id}"
+    return render_template('lobby.html', game_id=game_id)
