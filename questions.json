@@ -1,0 +1,82 @@
+[
+    {
+        "question": "What is the capital of California?",
+        "options": ["Sacramento", "Los Angeles", "San Diego", "San Francisco"],
+        "answer": "Sacramento"
+    },
+    {
+        "question": "Which state has Austin as its capital?",
+        "options": ["Texas", "Alabama", "Nevada", "Arizona"],
+        "answer": "Texas"
+    },
+    {
+        "question": "Which language is used to style web pages?",
+        "options": ["HTML", "Python", "CSS", "Java"],
+        "answer": "CSS"
+    },
+    {
+        "question": "What does Flask primarily help build?",
+        "options": ["Web applications", "Mobile apps", "Games", "Operating systems"],
+        "answer": "Web applications"
+    },
+    {
+        "question": "What is 9 × 7?",
+        "options": ["56", "63", "72", "49"],
+        "answer": "63"
+    },
+    {
+        "question": "What is the square root of 81?",
+        "options": ["7", "8", "9", "10"],
+        "answer": "9"
+    },
+    {
+        "question": "Which artist released the album 'Midnights'?",
+        "options": ["Billie Eilish", "Taylor Swift", "Drake", "Ariana Grande"],
+        "answer": "Taylor Swift"
+    },
+    {
+        "question": "Who plays Spider-Man in the Marvel Cinematic Universe?",
+        "options": ["Tobey Maguire", "Andrew Garfield", "Tom Holland", "Chris Evans"],
+        "answer": "Tom Holland"
+    },
+    {
+        "question": "Who was the first president of the United States?",
+        "options": ["Abraham Lincoln", "George Washington", "Thomas Jefferson", "John Adams"],
+        "answer": "George Washington"
+    },
+    {
+        "question": "What year did World War II end?",
+        "options": ["1945", "1942", "1939", "1950"],
+        "answer": "1945"
+    },
+    {
+        "question": "What is the capital of Japan?",
+        "options": ["Tokyo", "Beijing", "Seoul", "Osaka"],
+        "answer": "Tokyo"
+    },
+    {
+        "question": "What country has Ottawa as its capital?",
+        "options": ["USA", "Canada", "France", "Australia"],
+        "answer": "Canada"
+    },
+    {
+        "question": "What is the capital city of Iowa?",
+        "options": ["Des Moines", "Cedar Rapids", "Iowa City", "Sioux City"],
+        "answer": "Des Moines"
+    },
+    {
+        "question": "Which university is located in Ames, Iowa?",
+        "options": ["University of Iowa", "Iowa State University", "Drake University", "Grinnell College"],
+        "answer": "Iowa State University"
+    },
+    {
+        "question": "In which city is Buena Vista University located?",
+        "options": ["Storm Lake", "Des Moines", "Cedar Falls", "Dubuque"],
+        "answer": "Storm Lake"
+    },
+    {
+        "question": "What is Buena Vista University's mascot?",
+        "options": ["Beaver", "Eagle", "Bulldog", "Panther"],
+        "answer": "Beaver"
+    }
+]
