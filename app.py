@@ -5,6 +5,7 @@ from flask_socketio import SocketIO, join_room, emit
 import os
 import random
 import string
+import json
 
 app = Flask(__name__)
 app.secret_key = 'REPLACE_ME_WITH_RANDOM_CHARACTERS'  
@@ -18,7 +19,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app)
 
-from models import User, Game, Score
+from models import Game, Question 
 
 # make sure all the tables exist (runs once on startup)
 with app.app_context():
@@ -87,7 +88,7 @@ def handle_join(data):
         lobbies[game_id] = []
 
     # if this username isn’t already in, add them
-    if username not in lobbies[game_id]:
+    if username and username not in lobbies[game_id]:
         lobbies[game_id].append(username)
 
     # update everyone in the room with the full player list
@@ -98,7 +99,6 @@ def handle_join(data):
 def handle_start_game(data):
     game_id = data['game_id']
     emit('game_started', room=game_id)  # send signal to everyone in the room
-
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)

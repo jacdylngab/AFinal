@@ -72,6 +72,12 @@ class LobbyApp extends React.Component {
 
   // Runs when the component is ready on the screen
   componentDidMount() {
+    // This for whenever someone refreshes the page stays consistent
+    socket.emit("join", { 
+      game_id: this.state.game_id, 
+      username: "" // Blank username because we're just refreshing.
+    });
+
     // Whenever someone joins or updates the lobby,
     // the server sends back the full list of players
     socket.on("update_players", (players) => {
