@@ -139,24 +139,26 @@ class Game extends React.Component {
 
     }
   };
+  /*
+  resetGame = () => {
+    console.log("Resetting the game for the next question");
+    this.setState({
+
+    });
+  }
+    */
 
   componentDidMount() {
-    fetch('/api/questions')
-    .then(result => result.json())
-    .then(
-      (result) => {
-        this.setState({
-          question: result['question'],
-          options: result['options'],
-          answer: result['answer']
-        });
-      },
-      (error) => {
-        this.setState({
-          error: error,
-        });
-      }
-    )
+    this.setState({ 
+      question: this.props.question,
+      options: this.props.options,
+      answer: this.props.answer,
+      });
+
+    socket.on("game_over", () => {
+      alert("Game Over!");
+      // Do more here later!!
+    })
   }
 
   render() {
@@ -277,14 +279,20 @@ class App extends React.Component {
     });
 
     // When the host clicks "Start Game", we get this event
-    socket.on("game_started", () => {
-      this.setState({ view: 'game' });
+    socket.on("game_started", (data) => {
+      this.setState({ 
+        view: 'game',
+        question: data.question,
+        options: data.options,
+        answer: data.answer
+       });
     });
 
     // If the server says there was an error
     socket.on("error", (data) => {
       alert(data.message);
     });
+
 
   }
 
@@ -309,6 +317,9 @@ class App extends React.Component {
           game_id={this.state.game_id}
           myUsername={this.state.myUsername}
           updateScores={this.updateScores}
+          question={this.state.question}
+          options={this.state.options}
+          answer={this.state.answer}
       />
       );
     }

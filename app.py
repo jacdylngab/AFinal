@@ -6,7 +6,6 @@ from sqlalchemy.sql.expression import func
 import os
 import random
 import string
-import json
 
 app = Flask(__name__)
 app.secret_key = 'REPLACE_ME_WITH_RANDOM_CHARACTERS'  
@@ -73,24 +72,24 @@ def join_option():
 def join_game_lobby(game_id):
     return render_template('game.html', game_id=game_id)
 
-@app.route('/api/questions/', methods=['GET'])
-def first_question():
-    all_questions = Question.query.all() 
-
-    questions_list = []
-    
-    for question in all_questions:
-        questions_list.append({
-            "question": question.question_text,
-            "options": [question.option_a, question.option_b, question.option_c, question.option_d],
-            "answer": question.correct_answer,
-        })
-    
-    return jsonify(questions_list)
-
-
 # store who joined what game
 lobbies = {}
+
+@socketio.on('question')
+def handle_question(data):
+    game_id = data['game_id']
+    
+    lobby = lobbies[game_id]
+
+    if lobby["questions_remaining"]:
+        question = random.choice(lobby["questions_remaining"])
+
+        lobby["questions_remaining"].remove(question) # Remove the question so it does come again
+        emit('question', question, room=game_id)  # send signal to everyone in the room
+    
+    else:
+        emit('game_over', room=game_id)
+
 
 #  when someone joins through SocketIO (real-time)
 @socketio.on('join')
@@ -124,6 +123,7 @@ def handle_join(data):
     if username and username not in lobby:
         lobby["players"][username] = 0
         lobby["sockets"][sid]= username
+        lobby["questions_remaining"] = []
     
 
     # update everyone in the room with the full player list
@@ -137,11 +137,25 @@ def handle_start_game(data):
 
     lobby = lobbies[game_id]
 
+    all_questions = Question.query.all() 
+
+    questions_list = []
+
+    for question in all_questions:
+        questions_list.append({
+            "question": question.question_text,
+            "options": [question.option_a, question.option_b, question.option_c, question.option_d],
+            "answer": question.correct_answer,
+        })
+    
+
     if len(lobby["players"]) < 3: 
         emit('error', {"message": "You need atleast three players to start the game."}, room=sid)
 
     else: 
-        emit('game_started', room=game_id)  # send signal to everyone in the room
+        lobby["questions_remaining"] = random.sample(questions_list, 5) # Get 5 random questions
+        first_question = lobby["questions_remaining"].pop(0)
+        emit('game_started', first_question, room=game_id)  # send signal to everyone in the room
 
 # If the user disconnects/closes their tab or browser
 @socketio.on('disconnect')
@@ -169,6 +183,12 @@ def handle_score_update(data):
 
     # update everyone in the room with the full player list
     emit('update_players', lobby["players"], room=game_id)
+
+'''
+# When the game is over
+@socketio.on('game_over')
+def handle_game_over(data):
+'''
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
