@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, join_room, emit
+from sqlalchemy.sql.expression import func
 
 import os
 import random
@@ -18,7 +19,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 socketio = SocketIO(app)
 
-from models import User, Game, Score
+from models import Game, Question 
 
 # make sure all the tables exist (runs once on startup)
 with app.app_context():
@@ -66,39 +67,138 @@ def join_option():
         # game doesn't exist — show message
         return render_template('main.html', message="The game ID you entered does not exist!")
 
-# 👥 actual game lobby route
+# actual game lobby route
 @app.route('/join/<game_id>/')
 def join_game_lobby(game_id):
-    return render_template('lobby.html', game_id=game_id)
+    return render_template('game.html', game_id=game_id)
 
 # store who joined what game
 lobbies = {}
+
+@socketio.on('question')
+def handle_question(data):
+    game_id = data['game_id']
+    username = data['username']
+    sid = request.sid
+    
+    lobby = lobbies[game_id]
+
+    if "clicked" not in lobby:
+        lobby["clicked"] = []
+
+    lobby["clicked"].append(username)
+
+
+    if lobby["questions_remaining"]:
+        question = random.choice(lobby["questions_remaining"])
+        if len(lobby["clicked"]) == len(lobby["players"]):
+            lobby["clicked"].clear() # Reset the clicked list for the next question
+            lobby["questions_remaining"].remove(question) # Remove the question so it does come again
+            emit('question', question, room=game_id)  # send signal to everyone in the room
+    
+    else:
+        emit('game_over', room=sid)
+
 
 #  when someone joins through SocketIO (real-time)
 @socketio.on('join')
 def handle_join(data):
     game_id = data['game_id']
     username = data['username']
+    sid = request.sid # Browser session id
 
     join_room(game_id)  # put this player in the room
 
     # if this is the first player, set up the room
     if game_id not in lobbies:
-        lobbies[game_id] = []
+        lobbies[game_id] = {
+            "players": {}, # Key: username, Value: Score
+            "sockets": {}, # Key: sid, Value: username
+        }
+
+    lobby = lobbies[game_id]
+
+    # Check if the socket already joined 
+    if sid in lobby["sockets"]:
+        emit('error', {"message": "You have already joined from this tab."}, room=sid)
+        return
+
+    # If the username has already been taken
+    if username in lobby["players"]:
+        emit('error', {"message": "The username has already been chosen."}, room=sid)
+        return
 
     # if this username isn’t already in, add them
-    if username not in lobbies[game_id]:
-        lobbies[game_id].append(username)
+    if username and username not in lobby:
+        lobby["players"][username] = 0
+        lobby["sockets"][sid]= username
+        lobby["questions_remaining"] = []
+    
 
     # update everyone in the room with the full player list
-    emit('update_players', lobbies[game_id], room=game_id)
+    emit('update_players', lobby["players"], room=game_id)
 
 # when someone clicks "Start Game"
 @socketio.on('start_game')
 def handle_start_game(data):
     game_id = data['game_id']
-    emit('game_started', room=game_id)  # send signal to everyone in the room
+    sid = request.sid
 
+    lobby = lobbies[game_id]
+
+    all_questions = Question.query.all() 
+
+    questions_list = []
+
+    for question in all_questions:
+        questions_list.append({
+            "question": question.question_text,
+            "options": [question.option_a, question.option_b, question.option_c, question.option_d],
+            "answer": question.correct_answer,
+        })
+    
+
+    if len(lobby["players"]) < 3: 
+        emit('error', {"message": "You need atleast three players to start the game."}, room=sid)
+
+    else: 
+        lobby["questions_remaining"] = random.sample(questions_list, 5) # Get 5 random questions
+        first_question = lobby["questions_remaining"].pop(0)
+        emit('game_started', first_question, room=game_id)  # send signal to everyone in the room
+
+# If the user disconnects/closes their tab or browser
+@socketio.on('disconnect')
+def handle_disconnect():
+    sid = request.sid 
+
+    for game_id, lobby in lobbies.items():
+        if sid in lobby["sockets"]:
+            username = lobby["sockets"].pop(sid)
+            if username in lobby["players"]:
+                lobby["players"].pop(username)
+            emit('update_players', lobby["players"], room=game_id)
+            break
+
+# If somebody scored
+@socketio.on('score_update')
+def handle_score_update(data):
+    game_id = data['game_id']
+    username = data['username']
+
+    lobby = lobbies[game_id]
+
+    if game_id in lobbies and username in lobby["players"]:
+        lobby["players"][username] += 1
+
+    # update everyone in the room with the full player list
+    emit('update_players', lobby["players"], room=game_id)
+
+
+'''
+# When the game is over
+@socketio.on('game_over')
+def handle_game_over(data):
+'''
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
