@@ -117,6 +117,11 @@ class Game extends React.Component {
   OptionClicked = (selectedOption) => {
     console.log("You clicked:", selectedOption);
 
+    socket.emit("question", {
+      game_id: this.props.game_id,
+      username: this.props.myUsername
+    });
+
     if (selectedOption === this.state.answer) {
       console.log("Right answer");
       this.setState({
@@ -136,29 +141,33 @@ class Game extends React.Component {
       this.setState({
         selectedOption: selectedOption,
       });
-
     }
-  };
-  /*
-  resetGame = () => {
-    console.log("Resetting the game for the next question");
-    this.setState({
 
-    });
-  }
-    */
+  };
+
 
   componentDidMount() {
-    this.setState({ 
-      question: this.props.question,
-      options: this.props.options,
-      answer: this.props.answer,
+    // If every player answerd, show a new question
+    socket.on("question", (data) => {
+      this.setState({
+        question: data.question,
+        options: data.options,
+        answer: data.answer,
+        selectedOption: null
       });
+    });
 
     socket.on("game_over", () => {
       alert("Game Over!");
       // Do more here later!!
     })
+
+    // show the first question, until all users select an option
+    this.setState({ 
+      question: this.props.question,
+      options: this.props.options,
+      answer: this.props.answer,
+      });
   }
 
   render() {

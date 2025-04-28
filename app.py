@@ -78,17 +78,26 @@ lobbies = {}
 @socketio.on('question')
 def handle_question(data):
     game_id = data['game_id']
+    username = data['username']
+    sid = request.sid
     
     lobby = lobbies[game_id]
 
+    if "clicked" not in lobby:
+        lobby["clicked"] = []
+
+    lobby["clicked"].append(username)
+
+
     if lobby["questions_remaining"]:
         question = random.choice(lobby["questions_remaining"])
-
-        lobby["questions_remaining"].remove(question) # Remove the question so it does come again
-        emit('question', question, room=game_id)  # send signal to everyone in the room
+        if len(lobby["clicked"]) == len(lobby["players"]):
+            lobby["clicked"].clear() # Reset the clicked list for the next question
+            lobby["questions_remaining"].remove(question) # Remove the question so it does come again
+            emit('question', question, room=game_id)  # send signal to everyone in the room
     
     else:
-        emit('game_over', room=game_id)
+        emit('game_over', room=sid)
 
 
 #  when someone joins through SocketIO (real-time)
@@ -183,6 +192,7 @@ def handle_score_update(data):
 
     # update everyone in the room with the full player list
     emit('update_players', lobby["players"], room=game_id)
+
 
 '''
 # When the game is over
