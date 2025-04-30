@@ -6,6 +6,7 @@ from sqlalchemy.sql.expression import func
 import os
 import random
 import string
+import time 
 
 app = Flask(__name__)
 app.secret_key = 'REPLACE_ME_WITH_RANDOM_CHARACTERS'  
@@ -94,10 +95,26 @@ def handle_question(data):
         if len(lobby["clicked"]) == len(lobby["players"]):
             lobby["clicked"].clear() # Reset the clicked list for the next question
             lobby["questions_remaining"].remove(question) # Remove the question so it does come again
+            time.sleep(1)
             emit('question', question, room=game_id)  # send signal to everyone in the room
     
     else:
-        emit('game_over', room=sid)
+        if len(lobby["clicked"]) == len(lobby["players"]):
+            time.sleep(1)
+            emit('game_over', room=game_id)
+            # Game is over delete the game id
+            game_id_delete = Game.query.filter_by(game_id=game_id).first()
+            print(f"Game id to delete: {game_id_delete}")
+
+            if game_id_delete:
+                db.session.delete(game_id_delete)
+                db.session.commit()
+            else:
+                print("Game not found")
+                return
+
+            del lobbies[game_id]
+            print(f"Lobbies: {lobbies}")
 
 
 #  when someone joins through SocketIO (real-time)
@@ -157,10 +174,6 @@ def handle_start_game(data):
             "answer": question.correct_answer,
         })
     
-
-    if len(lobby["players"]) < 3: 
-        emit('error', {"message": "You need atleast three players to start the game."}, room=sid)
-
     else: 
         lobby["questions_remaining"] = random.sample(questions_list, 5) # Get 5 random questions
         first_question = lobby["questions_remaining"].pop(0)
@@ -190,15 +203,9 @@ def handle_score_update(data):
     if game_id in lobbies and username in lobby["players"]:
         lobby["players"][username] += 1
 
+    sorted_by_scores = dict(sorted(lobby["players"].items(), key=lambda item: item[1], reverse=True))
     # update everyone in the room with the full player list
-    emit('update_players', lobby["players"], room=game_id)
-
-
-'''
-# When the game is over
-@socketio.on('game_over')
-def handle_game_over(data):
-'''
+    emit('update_players', sorted_by_scores, room=game_id)
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
