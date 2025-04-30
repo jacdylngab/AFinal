@@ -192,7 +192,6 @@ class Game extends React.Component {
 
 // GAME OVER SCREEN
 function GameOver({ usernames }) {
-  const sorted = [...usernames].sort((a, b) => b.score - a.score);
 
   return (
     <div className="d-flex flex-column align-items-center mt-5">
@@ -208,9 +207,9 @@ function GameOver({ usernames }) {
           </tr>
         </thead>
         <tbody>
-          {sorted.map((user, index) => (
+          {usernames.map((user) => (
             <tr key={user.id}>
-              <td>{index + 1}</td>
+              <th scope="row">{user.id}</th>
               <td>{user.username}</td>
               <td>{user.score}</td>
             </tr>
