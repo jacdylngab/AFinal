@@ -175,7 +175,7 @@ def handle_start_game(data):
         })
 
     if len(lobby["players"]) < 2: 
-         emit('error', {"message": "You need atleast three players to start the game."}, room=sid)
+         emit('error', {"message": "You need atleast two players to start the game."}, room=sid)
     
     else: 
         lobby["questions_remaining"] = random.sample(questions_list, 5) # Get 5 random questions
@@ -211,5 +211,5 @@ def handle_score_update(data):
     emit('update_players', sorted_by_scores, room=game_id)
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, debug=True)
 
