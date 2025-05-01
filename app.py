@@ -211,4 +211,5 @@ def handle_score_update(data):
     emit('update_players', sorted_by_scores, room=game_id)
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+
