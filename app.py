@@ -173,6 +173,9 @@ def handle_start_game(data):
             "options": [question.option_a, question.option_b, question.option_c, question.option_d],
             "answer": question.correct_answer,
         })
+
+    if len(lobby["players"]) < 2: 
+         emit('error', {"message": "You need atleast three players to start the game."}, room=sid)
     
     else: 
         lobby["questions_remaining"] = random.sample(questions_list, 5) # Get 5 random questions
